@@ -1,0 +1,63 @@
+---
+hosts: localhost # localhost means the machine where ansible is installed
+become: yes # becomes root user. This is required to install docker and start docker service on the host machine 
+tasks:
+- name: install docker # name of the task. This task will install docker
+  yum: 
+    name: docker 
+    state: present # state is present. This means that docker will be installed
+- name: start docker
+  service: # service is a module in ansible. It is used to start, stop, restart, enable and disable services
+    name: docker # name of the service
+    state: started # state is started. This means that docker will be started
+- name: enable docker # enable docker. This means that docker will be enabled
+  service:
+    name: docker
+    enabled: yes
+- name: install docker-py
+  pip:
+    name: docker-py
+    state: present
+
+# httpd is a web server that is used to host websites
+- name: pull httpd image # pull httpd image from docker hub. Dockhub is a repository of docker images
+  docker_image: # docker_image is a module in ansible. It is used to pull, build and push docker images
+    name: httpd # name of the image. this is apache httpd image
+    state: present # state is present. This means that the image will be pulled
+  #
+- name: run httpd container # run httpd container
+  docker_container: # docker_container is a module in ansible. It is used to run, stop, start, restart and remove docker containers
+    name: httpd # name of the container
+    image: httpd # image of the container. An image is a template for a container
+    state: started # state is started. This means that the container will be started
+    ports: # ports is a list of ports that will be exposed by the container
+      - "80:80" # 80:80 means that port 80 of the container will be exposed on port 80 of the host. Port 80 is the default port for http
+    restart_policy: always # restart_policy is always. This means that the container will be restarted if it is stopped
+- name: copy index.html # copy index.html to the container
+  copy: # copy is a module in ansible. It is used to copy files from the host to the container
+    src: index.html # source file
+    dest: /var/www/html/index.html # destination file
+- name: copy httpd.conf # copy httpd.conf to the container
+  copy: # copy is a module in ansible. It is used to copy files from the host to the container
+    src: httpd.conf # source file
+    dest: /etc/httpd/conf/httpd.conf # destination file
+- name: restart httpd # restart httpd
+  service: # service is a module in ansible. It is used to start, stop, restart, enable and disable services
+    name: httpd # name of the service
+    state: restarted # state is restarted. This means that the service will be restarted
+
+
+## Ansible Playbook to install docker on CentOS, Fedora, or any other Red Hat based Linux distribution
+
+# The playbook in summary will do the following:
+# 1. Install docker
+# 2. Start docker
+# 3. Enable docker
+# 4. Install docker-py
+# 5. Pull httpd image from docker hub
+# 6. Run httpd container
+# 7. Copy index.html to the container
+# 8. Copy httpd.conf to the container
+# 9. Restart httpd
+
+#redhat_docker_setup.yml
